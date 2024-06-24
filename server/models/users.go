@@ -1,6 +1,7 @@
 package models
 
 import (
+	"errors"
 	"log"
 
 	"example.com/LendLib/db"
@@ -14,6 +15,14 @@ type User struct {
 	LastName string 	`binding:"required"` 
 	Email string 		`binding:"required"` 
 	Password string 	`binding:"required"` 
+}
+
+type UserCredentials struct {
+	ID        int64  
+	FirstName string
+	LastName  string
+	Email     string `binding:"required"`
+	Password  string `binding:"required"`
 }
 
 
@@ -41,3 +50,26 @@ func (u *User) CreateUser() error {
 	u.ID = userId
 	return nil
 }	
+
+func (u *UserCredentials) ValidateCredentials() error {
+	query := `
+	SELECT "id", "firstName", "lastName", "email", "password" FROM "Users" WHERE "email" = $1
+	`
+	row := db.DB.QueryRow(query, u.Email)
+
+	var retrievedUser User
+
+	err := row.Scan(&retrievedUser.ID, &retrievedUser.FirstName, &retrievedUser.LastName, &retrievedUser.Email, &retrievedUser.Password)
+
+	if err != nil {
+		return errors.New("invalid credentials")
+	}
+
+	validatePassword := utils.ComparePassword(u.Password, retrievedUser.Password)
+
+	if !validatePassword {
+		return errors.New("invalid credentials")
+	}
+	
+	return nil
+}
