@@ -4,5 +4,5 @@ import "github.com/gin-gonic/gin"
 
 
 func Router(server *gin.Engine) {
-	
+	server.POST("/auth/register", register)
 }
