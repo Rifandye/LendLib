@@ -19,8 +19,8 @@ func Router(server *gin.Engine) {
 	server.GET("/books", getAllBooks)
 	server.GET("/books/:id", getBookById)
 
-	authenticated := server.Group("/")
+	authenticated := server.Group("/borrow")
 	authenticated.Use(middlewares.Authenticate)
-	authenticated.POST("/borrow/:id", borrowBook)
-	authenticated.PUT("/borrow/:id", returnBook)
+	authenticated.POST("/:id", borrowBook)
+	authenticated.PUT("/:id", returnBook)
 }
