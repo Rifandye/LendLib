@@ -69,3 +69,21 @@ func GetBooks() ([]Book, error) {
 
 	return books, nil
 }
+
+func GetBook(id int64) (*Book, error) {
+	query := `
+		SELECT * FROM "Books" WHERE id = $1
+	`
+
+	row := db.DB.QueryRow(query, id)
+
+	var book Book
+	err := row.Scan(&book.ID, &book.Name, &book.Description, &book.Image, &book.Author, &book.PublishedDate, &book.Stock, &book.createdAt, &book.updatedAt)
+
+	if err != nil {
+		log.Printf("Error scanning row: %v", err)
+		return nil, err
+	}
+
+	return &book, nil
+}

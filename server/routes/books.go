@@ -2,6 +2,7 @@ package routes
 
 import (
 	"net/http"
+	"strconv"
 
 	"example.com/LendLib/models"
 	"github.com/gin-gonic/gin"
@@ -38,4 +39,22 @@ func getAllBooks(context *gin.Context) {
 	}
 
 	context.JSON(http.StatusOK, books)
+}
+
+func getBookById(context *gin.Context) {
+	bookId, err := strconv.ParseInt(context.Param("id"), 10, 64) 
+	if err != nil {
+			context.JSON(http.StatusBadRequest, gin.H{"message": "Could not parse book id", "error": err.Error()})
+			return
+	}
+
+	book, err := models.GetBook(bookId)
+
+	if err != nil {
+		context.JSON(http.StatusInternalServerError, gin.H{"message": "Could not fetch book"})
+		return
+	}
+
+
+	context.JSON(http.StatusOK, book)
 }
