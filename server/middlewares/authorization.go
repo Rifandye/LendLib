@@ -14,10 +14,10 @@ func AuthorizeAdmin(context *gin.Context) {
 		return
 	}
 
-	if role != "admin" {
+	if role != "Admin" {
 		context.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"message": "Only admin can do this"})
 		return
 	}
 
 	context.Next()
-}
+}	
