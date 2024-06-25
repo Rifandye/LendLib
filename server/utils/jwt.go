@@ -10,7 +10,7 @@ import (
 	"github.com/joho/godotenv"
 )
 
-func GenerateToken(firstName, lastName, email string, userId int64) (string, error) {
+func GenerateToken(firstName, lastName, email, role string, userId int64) (string, error) {
 
 	err := godotenv.Load()
 
@@ -24,6 +24,7 @@ func GenerateToken(firstName, lastName, email string, userId int64) (string, err
 		"firstName": firstName,
 		"lastName": lastName,
 		"email": email,
+		"role": role,
 		"userId": userId,
 		"exp": time.Now().Add(time.Hour * 2).Unix(),
 	})
@@ -31,7 +32,7 @@ func GenerateToken(firstName, lastName, email string, userId int64) (string, err
 	return token.SignedString([]byte(secretKey))
 }
 
-func VerifyToken(token string) (int64, error) {
+func VerifyToken(token string) (int64, string, error) {
 	err := godotenv.Load()
 
 	if err != nil {
@@ -51,31 +52,37 @@ func VerifyToken(token string) (int64, error) {
 	})
 
 	if err != nil {
-		return 0, errors.New("could not parse token")
+		return 0, "", errors.New("could not parse token")
 	}
 
 	tokenIsValid := parsedToken.Valid
 
 	if !tokenIsValid {
-		return 0, errors.New("invalid token")
+		return 0, "", errors.New("invalid token")
 	}
 
 	claims, ok := parsedToken.Claims.(jwt.MapClaims)
 
 	if !ok {
-		return 0, errors.New("invalid token claims")
+		return 0, "", errors.New("invalid token claims")
 	}
 
 	// firstName := claims["firstName"].(string)
 	// lastName := claims["lastName"].(string)
 	// email := claims["email"].(string)
-	userIdFloat64, ok := claims["userId"].(float64)
 	
+
+	role, ok := claims["role"].(string)
 	if !ok {
-		return 0, errors.New("userId in token is not a float64")
+		return 0, "", errors.New("role in token is not a string")
+	}
+	
+	userIdFloat64, ok := claims["userId"].(float64)
+	if !ok {
+		return 0, "", errors.New("userId in token is not a float64")
 	}
 
 	userId := int64(userIdFloat64)
 
-	return userId, nil
+	return userId, role, nil
 }

@@ -14,7 +14,8 @@ type User struct {
 	FirstName string 	`binding:"required"` 
 	LastName string 	`binding:"required"` 
 	Email string 		`binding:"required"` 
-	Password string 	`binding:"required"` 
+	Password string 	`binding:"required"`
+	Role string 
 }
 
 type UserCredentials struct {
@@ -23,6 +24,7 @@ type UserCredentials struct {
 	LastName  string
 	Email     string `binding:"required"`
 	Password  string `binding:"required"`
+	Role	  string
 }
 
 
@@ -53,7 +55,7 @@ func (u *User) CreateUser() error {
 
 func (u *UserCredentials) ValidateCredentials() error {
 	query := `
-	SELECT "id", "firstName", "lastName", "email", "password" 
+	SELECT "id", "firstName", "lastName", "email", "password", "role"
 	FROM "Users" 
 	WHERE "email" = $1
 	`
@@ -61,7 +63,7 @@ func (u *UserCredentials) ValidateCredentials() error {
 
 	var retrievedUser User
 
-	err := row.Scan(&retrievedUser.ID, &retrievedUser.FirstName, &retrievedUser.LastName, &retrievedUser.Email, &retrievedUser.Password)
+	err := row.Scan(&retrievedUser.ID, &retrievedUser.FirstName, &retrievedUser.LastName, &retrievedUser.Email, &retrievedUser.Password, &retrievedUser.Role)
 
 	if err != nil {
 		return errors.New("invalid credentials")
@@ -71,6 +73,7 @@ func (u *UserCredentials) ValidateCredentials() error {
 	u.FirstName = retrievedUser.FirstName
 	u.LastName = retrievedUser.LastName
 	u.Email = retrievedUser.Email
+	u.Role = retrievedUser.Role
 
 	validatePassword := utils.ComparePassword(u.Password, retrievedUser.Password)
 

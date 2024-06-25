@@ -49,6 +49,7 @@ func createTables() {
 		"lastName" VARCHAR NOT NULL,
 		"email" VARCHAR NOT NULL UNIQUE,
 		"password" VARCHAR NOT NULL,
+		"role" VARCHAR NOT NULL DEFAULT 'User',
 		"createdAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 		"updatedAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 	)
@@ -87,6 +88,7 @@ func createTables() {
 		"id" SERIAL PRIMARY KEY,
 		"borrowDate" TIMESTAMP NOT NULL,
 		"returnDate" TIMESTAMP NOT NULL,
+		"status" VARCHAR NOT NULL,
 		"user_id" INTEGER REFERENCES "Users"("id"),
 		"book_id" INTEGER REFERENCES "Books"("id"),
 		"createdAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
