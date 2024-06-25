@@ -14,6 +14,7 @@ func Router(server *gin.Engine) {
 	admin.Use(middlewares.Authenticate)
 	admin.Use(middlewares.AuthorizeAdmin)
 	admin.POST("/books", addBook)
+	admin.PUT("/books/:id", updateBookById)
 
 
 	server.GET("/books", getAllBooks)
