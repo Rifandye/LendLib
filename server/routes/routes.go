@@ -9,4 +9,5 @@ func Router(server *gin.Engine) {
 	server.POST("/books", addBook)
 	server.GET("/books", getAllBooks)
 	server.GET("/books/:id", getBookById)
+	server.POST("/borrow/:id", borrowBook)
 }

@@ -53,7 +53,9 @@ func (u *User) CreateUser() error {
 
 func (u *UserCredentials) ValidateCredentials() error {
 	query := `
-	SELECT "id", "firstName", "lastName", "email", "password" FROM "Users" WHERE "email" = $1
+	SELECT "id", "firstName", "lastName", "email", "password" 
+	FROM "Users" 
+	WHERE "email" = $1
 	`
 	row := db.DB.QueryRow(query, u.Email)
 
@@ -64,6 +66,11 @@ func (u *UserCredentials) ValidateCredentials() error {
 	if err != nil {
 		return errors.New("invalid credentials")
 	}
+
+	u.ID = retrievedUser.ID
+	u.FirstName = retrievedUser.FirstName
+	u.LastName = retrievedUser.LastName
+	u.Email = retrievedUser.Email
 
 	validatePassword := utils.ComparePassword(u.Password, retrievedUser.Password)
 
