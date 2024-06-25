@@ -29,3 +29,22 @@ func borrowBook(context *gin.Context) {
 
 	context.JSON(http.StatusCreated, gin.H{"message": "Borrow created successfully"})
 }
+
+func returnBook(context *gin.Context) {
+	bookId, err := strconv.ParseInt(context.Param("id"), 10, 64)
+
+	if err != nil {
+		context.JSON(http.StatusBadRequest, gin.H{"message": "Could not parse book id", "error": err.Error()})
+		return
+	}
+
+	err = models.ReturnBook(bookId)
+
+	if err != nil {
+		context.JSON(http.StatusInternalServerError, gin.H{"message": "Could not return book"})
+		return
+	}
+
+
+	context.JSON(http.StatusOK, gin.H{"message": "Book returned successfully"})
+}

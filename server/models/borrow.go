@@ -76,3 +76,33 @@ func (b *Borrow) CreateBorrow(bookId, userId int64) error {
 
 	return nil
 }
+
+func ReturnBook(borrowId int64) error {
+	query := `
+		SELECT book_id FROM "Borrows" WHERE id = $1
+	`
+
+	var bookId int64
+
+	err := db.DB.QueryRow(query, borrowId).Scan(&bookId)
+
+	if err != nil {
+		log.Printf("Error retrieving book_id for borrow ID %d: %v", borrowId, err)
+		return errors.New("cannot return book")
+	}
+
+	// Update book stock
+	updateQuery := `
+		UPDATE "Books"
+		SET "stock" = "stock" + 1
+		WHERE "id" = $1
+	`
+
+	_, err = db.DB.Exec(updateQuery, bookId)
+	if err != nil {
+		log.Printf("Error updating book stock: %v", err)
+		return errors.New("cannot return book")
+	}
+
+	return nil
+}

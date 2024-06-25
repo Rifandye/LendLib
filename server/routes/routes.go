@@ -16,4 +16,5 @@ func Router(server *gin.Engine) {
 	authenticated := server.Group("/")
 	authenticated.Use(middlewares.Authenticate)
 	authenticated.POST("/borrow/:id", borrowBook)
+	authenticated.PUT("/borrow/:id", returnBook)
 }
