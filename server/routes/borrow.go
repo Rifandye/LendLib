@@ -14,7 +14,7 @@ func borrowBook(context *gin.Context) {
 	bookId, err := strconv.ParseInt(context.Param("id"), 10, 64)
 
 	if err != nil {
-		context.JSON(http.StatusBadRequest, gin.H{"message": "Could not parse book id", "error": err.Error()})
+		context.JSON(http.StatusBadRequest, gin.H{"message": "Could not parse book id", "details": err.Error()})
 		return
 	}
 
@@ -22,7 +22,7 @@ func borrowBook(context *gin.Context) {
 	err = newBorrow.CreateBorrow(bookId, userId)
 
 	if err != nil {
-		context.JSON(http.StatusInternalServerError, gin.H{"message": "Could not borrow"})
+		context.JSON(http.StatusInternalServerError, gin.H{"message": "Could not borrow", "details": err.Error()})
 		return
 	}
 
@@ -34,14 +34,14 @@ func returnBook(context *gin.Context) {
 	bookId, err := strconv.ParseInt(context.Param("id"), 10, 64)
 
 	if err != nil {
-		context.JSON(http.StatusBadRequest, gin.H{"message": "Could not parse book id", "error": err.Error()})
+		context.JSON(http.StatusBadRequest, gin.H{"message": "Could not parse book id", "details": err.Error()})
 		return
 	}
 
 	err = models.ReturnBook(bookId)
 
 	if err != nil {
-		context.JSON(http.StatusInternalServerError, gin.H{"message": "Could not return book"})
+		context.JSON(http.StatusInternalServerError, gin.H{"message": "Could not return book", "details": err.Error()})
 		return
 	}
 

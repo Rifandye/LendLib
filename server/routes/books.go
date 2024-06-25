@@ -51,7 +51,7 @@ func getBookById(context *gin.Context) {
 	book, err := models.GetBook(bookId)
 
 	if err != nil {
-		context.JSON(http.StatusInternalServerError, gin.H{"message": "Could not fetch book"})
+		context.JSON(http.StatusNotFound, gin.H{"message": "Could not fetch book", "details": err.Error()})
 		return
 	}
 
@@ -69,7 +69,7 @@ func updateBookById(context *gin.Context) {
 	_, err = models.GetBook(bookId)
 
 	if err != nil {
-		context.JSON(http.StatusInternalServerError, gin.H{"message": "Could not fetch book"})
+		context.JSON(http.StatusNotFound, gin.H{"message": "Could not fetch book", "details": err.Error()})
 		return
 	}
 
@@ -104,7 +104,7 @@ func deleteBookById(context *gin.Context) {
 	book, err := models.GetBook(bookId)
 
 	if err != nil {
-		context.JSON(http.StatusInternalServerError, gin.H{"message": "Could not fetch book"})
+		context.JSON(http.StatusNotFound, gin.H{"message": "Could not fetch book", "details": err.Error()})
 		return
 	}
 
