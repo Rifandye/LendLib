@@ -16,8 +16,8 @@ type Book struct {
 	Author string
 	PublishedDate time.Time
 	Stock int
-	createdAt time.Time
-	updatedAt time.Time
+	CreatedAt time.Time
+	UpdatedAt time.Time
 }
 
 func (b *Book) CreateBook() error {
@@ -56,7 +56,7 @@ func GetBooks() ([]Book, error) {
 	
 	for rows.Next() {
 		var book Book
-		err := rows.Scan(&book.ID, &book.Name, &book.Description, &book.Image, &book.Author, &book.PublishedDate, &book.Stock, &book.createdAt, &book.updatedAt)
+		err := rows.Scan(&book.ID, &book.Name, &book.Description, &book.Image, &book.Author, &book.PublishedDate, &book.Stock, &book.CreatedAt, &book.UpdatedAt)
 
 		if err != nil {
 			log.Printf("Error scanning row: %v", err)
@@ -78,7 +78,7 @@ func GetBook(id int64) (*Book, error) {
 	row := db.DB.QueryRow(query, id)
 
 	var book Book
-	err := row.Scan(&book.ID, &book.Name, &book.Description, &book.Image, &book.Author, &book.PublishedDate, &book.Stock, &book.createdAt, &book.updatedAt)
+	err := row.Scan(&book.ID, &book.Name, &book.Description, &book.Image, &book.Author, &book.PublishedDate, &book.Stock, &book.CreatedAt, &book.UpdatedAt)
 
 	if err != nil {
 		log.Printf("Error scanning row: %v", err)
@@ -86,4 +86,27 @@ func GetBook(id int64) (*Book, error) {
 	}
 
 	return &book, nil
+}
+
+func (b *Book) UpdateBook() error {
+	query := `
+		UPDATE "Books"
+		SET "name" = $1, "description" = $2, "image" = $3, "author" = $4, "publishedDate" = $5, "stock" = $6
+		WHERE id = $7
+	`
+
+	_, err := db.DB.Exec(query, b.Name, b.Description, b.Image, b.Author, b.PublishedDate, b.Stock, b.ID)
+
+	return err
+}
+
+func (b *Book) DeleteBook() error {
+	query := `
+		DELETE FROM "Books"
+		WHERE id = $1
+	`
+
+	_, err := db.DB.Exec(query, b.ID)
+
+	return err
 }

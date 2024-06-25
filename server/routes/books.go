@@ -22,7 +22,7 @@ func addBook(context *gin.Context) {
 	err = newBook.CreateBook()
 
 	if err != nil {
-		context.JSON(http.StatusInternalServerError, gin.H{"message": "Could not save new book", "error": err.Error()})
+		context.JSON(http.StatusInternalServerError, gin.H{"message": "Could not save new book", "details": err.Error()})
 	}
 
 
@@ -44,17 +44,76 @@ func getAllBooks(context *gin.Context) {
 func getBookById(context *gin.Context) {
 	bookId, err := strconv.ParseInt(context.Param("id"), 10, 64) 
 	if err != nil {
-			context.JSON(http.StatusBadRequest, gin.H{"message": "Could not parse book id", "error": err.Error()})
+			context.JSON(http.StatusBadRequest, gin.H{"message": "Could not parse book id", "details": err.Error()})
 			return
 	}
 
 	book, err := models.GetBook(bookId)
 
 	if err != nil {
-		context.JSON(http.StatusInternalServerError, gin.H{"message": "Could not fetch book"})
+		context.JSON(http.StatusNotFound, gin.H{"message": "Could not fetch book", "details": err.Error()})
 		return
 	}
 
 
 	context.JSON(http.StatusOK, book)
+}
+
+func updateBookById(context *gin.Context) {
+	bookId, err := strconv.ParseInt(context.Param("id"), 10, 64) 
+	if err != nil {
+			context.JSON(http.StatusBadRequest, gin.H{"message": "Could not parse book id", "details": err.Error()})
+			return
+	}
+
+	_, err = models.GetBook(bookId)
+
+	if err != nil {
+		context.JSON(http.StatusNotFound, gin.H{"message": "Could not fetch book", "details": err.Error()})
+		return
+	}
+
+	var updatedBook models.Book
+
+	err = context.ShouldBindJSON(&updatedBook)
+
+	if err != nil {
+		context.JSON(http.StatusBadRequest, gin.H{"message": "Could not parse request"})
+		return
+	}
+
+	updatedBook.ID = bookId
+
+	err = updatedBook.UpdateBook()
+
+	if err != nil {
+		context.JSON(http.StatusInternalServerError, gin.H{"message": "Could not update book", "details": err.Error()})
+		return
+	}
+
+	context.JSON(http.StatusOK, gin.H{"message": "Book update successfully"})
+}
+
+func deleteBookById(context *gin.Context) {
+	bookId, err := strconv.ParseInt(context.Param("id"), 10, 64) 
+	if err != nil {
+			context.JSON(http.StatusBadRequest, gin.H{"message": "Could not parse book id", "details": err.Error()})
+			return
+	}
+
+	book, err := models.GetBook(bookId)
+
+	if err != nil {
+		context.JSON(http.StatusNotFound, gin.H{"message": "Could not fetch book", "details": err.Error()})
+		return
+	}
+
+
+	err = book.DeleteBook()
+	if err != nil {
+		context.JSON(http.StatusInternalServerError, gin.H{"message": "Could not delete book", "details": err.Error()})
+		return
+	}
+
+	context.JSON(http.StatusNoContent, nil)
 }
