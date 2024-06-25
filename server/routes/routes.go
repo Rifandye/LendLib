@@ -1,6 +1,9 @@
 package routes
 
-import "github.com/gin-gonic/gin"
+import (
+	"example.com/LendLib/middlewares"
+	"github.com/gin-gonic/gin"
+)
 
 
 func Router(server *gin.Engine) {
@@ -9,5 +12,8 @@ func Router(server *gin.Engine) {
 	server.POST("/books", addBook)
 	server.GET("/books", getAllBooks)
 	server.GET("/books/:id", getBookById)
-	server.POST("/borrow/:id", borrowBook)
+
+	authenticated := server.Group("/")
+	authenticated.Use(middlewares.Authenticate)
+	authenticated.POST("/borrow/:id", borrowBook)
 }
