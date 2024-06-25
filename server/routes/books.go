@@ -93,3 +93,27 @@ func updateBookById(context *gin.Context) {
 
 	context.JSON(http.StatusOK, gin.H{"message": "Book update successfully"})
 }
+
+func deleteBookById(context *gin.Context) {
+	bookId, err := strconv.ParseInt(context.Param("id"), 10, 64) 
+	if err != nil {
+			context.JSON(http.StatusBadRequest, gin.H{"message": "Could not parse book id", "details": err.Error()})
+			return
+	}
+
+	book, err := models.GetBook(bookId)
+
+	if err != nil {
+		context.JSON(http.StatusInternalServerError, gin.H{"message": "Could not fetch book"})
+		return
+	}
+
+
+	err = book.DeleteBook()
+	if err != nil {
+		context.JSON(http.StatusInternalServerError, gin.H{"message": "Could not delete book", "details": err.Error()})
+		return
+	}
+
+	context.JSON(http.StatusNoContent, nil)
+}

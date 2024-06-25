@@ -99,3 +99,14 @@ func (b *Book) UpdateBook() error {
 
 	return err
 }
+
+func (b *Book) DeleteBook() error {
+	query := `
+		DELETE FROM "Books"
+		WHERE id = $1
+	`
+
+	_, err := db.DB.Exec(query, b.ID)
+
+	return err
+}
