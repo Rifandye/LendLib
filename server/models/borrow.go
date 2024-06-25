@@ -12,6 +12,7 @@ type Borrow struct {
 	ID int64
 	BorrowDate time.Time
 	ReturnDate time.Time
+	Status string
 	User_Id int64
 	Book_id int64
 }
@@ -90,6 +91,21 @@ func ReturnBook(borrowId int64) error {
 		log.Printf("Error retrieving book_id for borrow ID %d: %v", borrowId, err)
 		return errors.New("cannot return book")
 	}
+
+	//update borrow status
+	updatedBorrowQuery := `
+		UPDATE "Borrows"
+		SET "status" = 'Returned'
+		WHERE "id" = $1
+	`
+
+	_, err = db.DB.Exec(updatedBorrowQuery, borrowId)
+	
+	if err != nil {
+		log.Printf("Error updating book stock: %v", err)
+		return errors.New("cannot return book")
+	}
+
 
 	// Update book stock
 	updateQuery := `
