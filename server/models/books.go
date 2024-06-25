@@ -16,6 +16,8 @@ type Book struct {
 	Author string
 	PublishedDate time.Time
 	Stock int
+	createdAt time.Time
+	updatedAt time.Time
 }
 
 func (b *Book) CreateBook() error {
@@ -35,4 +37,35 @@ func (b *Book) CreateBook() error {
 
 	b.ID = bookId
 	return nil
+}
+
+func GetBooks() ([]Book, error) {
+	query := `
+		SELECT * FROM "Books"
+	`
+
+	rows, err := db.DB.Query(query)
+
+	if err != nil {
+		log.Printf("Error fetching books: %v", err)
+		return nil, err
+	}
+	defer rows.Close()
+
+	var books []Book
+	
+	for rows.Next() {
+		var book Book
+		err := rows.Scan(&book.ID, &book.Name, &book.Description, &book.Image, &book.Author, &book.PublishedDate, &book.Stock, &book.createdAt, &book.updatedAt)
+
+		if err != nil {
+			log.Printf("Error scanning row: %v", err)
+			return nil, err
+		}
+
+
+		books = append(books, book)
+	}
+
+	return books, nil
 }

@@ -30,5 +30,12 @@ func addBook(context *gin.Context) {
 
 
 func getAllBooks(context *gin.Context) {
-	
+	books, err := models.GetBooks()
+
+	if err != nil {
+		context.JSON(http.StatusInternalServerError, gin.H{"message": "Could not fetch books"})
+		return
+	}
+
+	context.JSON(http.StatusOK, books)
 }
