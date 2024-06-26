@@ -17,6 +17,25 @@ type Borrow struct {
 	Book_id int64
 }
 
+type BorrowedBook struct {
+	Name          string
+	Description   string
+	Image         string
+	Author        string
+	PublishedDate time.Time
+}
+
+type UserWithBorrowedBooks struct {
+	FirstName    string
+	LastName     string
+	Email        string
+	UserId       int64
+	BorrowedBooks []struct {
+        BorrowedBook
+        Status string
+    }
+}
+
 func (b *Borrow) CreateBorrow(bookId, userId int64) error {
 	//Validating user vould not borrowing the same book more than once
 	var count int
@@ -121,4 +140,47 @@ func ReturnBook(borrowId int64) error {
 	}
 
 	return nil
+}
+
+func GetUserBorrowedBooks(userId int64) (*UserWithBorrowedBooks, error) {
+    query := `
+        SELECT u."firstName", u."lastName", u.email, u.id, b2.name, b2.description, b2.image, b2.author, b2."publishedDate", b."status"
+        FROM "Borrows" b
+        JOIN "Users" u ON b.user_id = u.id
+        JOIN "Books" b2 ON b.book_id = b2.id
+        WHERE b.user_id = $1
+    `
+
+    rows, err := db.DB.Query(query, userId)
+    if err != nil {
+        log.Printf("Error retrieving borrowed books for user ID %d: %v", userId, err)
+        return nil, errors.New("cannot retrieve borrowed books")
+    }
+    defer rows.Close()
+
+    var user UserWithBorrowedBooks
+    var borrowedBooks []struct {
+        BorrowedBook
+        Status string
+    }
+
+    for rows.Next() {
+        var book struct {
+            BorrowedBook
+            Status string
+        }
+        if err := rows.Scan(&user.FirstName, &user.LastName, &user.Email, &user.UserId, &book.Name, &book.Description, &book.Image, &book.Author, &book.PublishedDate, &book.Status); err != nil {
+            log.Printf("Error scanning row: %v", err)
+            return nil, errors.New("cannot retrieve borrowed books")
+        }
+        borrowedBooks = append(borrowedBooks, book)
+    }
+
+    if err := rows.Err(); err != nil {
+        log.Printf("Error iterating over rows: %v", err)
+        return nil, errors.New("cannot retrieve borrowed books")
+    }
+
+    user.BorrowedBooks = borrowedBooks
+    return &user, nil
 }

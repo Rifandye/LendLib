@@ -29,7 +29,6 @@ func addBook(context *gin.Context) {
 	context.JSON(http.StatusCreated, gin.H{"message": "Book created successfull", "book": newBook})
 }
 
-
 func getAllBooks(context *gin.Context) {
 	books, err := models.GetBooks()
 
